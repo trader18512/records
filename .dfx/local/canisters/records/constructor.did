@@ -1,8 +1,8 @@
 service: () -> {
     createHealthRecord: (text, text, text, text) -> (variant {Ok:record {id:principal; doctorId:text; prescription:text; patientId:text; diagnosis:text}; Err:variant {HealthRecordDoesNotExist:text; StaffDoesNotExist:text; PatientDoesNotExist:text}});
-    createPatient: (text) -> (record {id:principal; name:text; healthRecordIds:vec text});
+    createPatient: (text, nat8, text, text) -> (record {id:principal; age:nat8; bloodType:text; name:text; healthRecordIds:vec text; gender:text});
     createStaff: (text, text) -> (record {id:principal; name:text; role:text});
     readHealthRecordById: (text) -> (opt record {id:principal; doctorId:text; prescription:text; patientId:text; diagnosis:text}) query;
-    readPatientById: (text) -> (opt record {id:principal; name:text; healthRecordIds:vec text}) query;
+    readPatientById: (text) -> (opt record {id:principal; age:nat8; bloodType:text; name:text; healthRecordIds:vec text; gender:text}) query;
     readStaffById: (text) -> (opt record {id:principal; name:text; role:text}) query;
 }

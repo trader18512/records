@@ -15,8 +15,15 @@ service : {
         };
       },
     );
-  createPatient : (text) -> (
-      record { id : principal; name : text; healthRecordIds : vec text },
+  createPatient : (text, nat8, text, text) -> (
+      record {
+        id : principal;
+        age : nat8;
+        bloodType : text;
+        name : text;
+        healthRecordIds : vec text;
+        gender : text;
+      },
     );
   createStaff : (text, text) -> (
       record { id : principal; name : text; role : text },
@@ -31,7 +38,14 @@ service : {
       },
     ) query;
   readPatientById : (text) -> (
-      opt record { id : principal; name : text; healthRecordIds : vec text },
+      opt record {
+        id : principal;
+        age : nat8;
+        bloodType : text;
+        name : text;
+        healthRecordIds : vec text;
+        gender : text;
+      },
     ) query;
   readStaffById : (text) -> (
       opt record { id : principal; name : text; role : text },

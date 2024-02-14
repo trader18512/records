@@ -14,12 +14,18 @@ import {
     text,
     update,
     Variant,
-    Vec
+    Vec,
+    nat16,
+    nat8
 } from 'azle';
 
 const Patient = Record({
     id: Principal,
     name: text,
+    age: nat8,
+    gender: text,
+    bloodType: text,
+    allergies: text,
     healthRecordIds: Vec(text)
 });
 type Patient = typeof Patient.tsType;
@@ -53,11 +59,15 @@ let healthRecords = StableBTreeMap<text, HealthRecord>(0);
 
 export default Canister({
     // Patient related operations
-    createPatient: update([text], Patient, (name) => {
+    createPatient: update([text,nat8,text, text, text], Patient, (name, age, gender, allergies, bloodType) => {
         const id = generateId();
         const patient: Patient = {
             id,
             name,
+            age,
+            gender,
+            bloodType,
+            allergies,
             healthRecordIds: []
         };
     

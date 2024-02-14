@@ -21,12 +21,15 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'createPatient' : IDL.Func(
-        [IDL.Text],
+        [IDL.Text, IDL.Nat8, IDL.Text, IDL.Text],
         [
           IDL.Record({
             'id' : IDL.Principal,
+            'age' : IDL.Nat8,
+            'bloodType' : IDL.Text,
             'name' : IDL.Text,
             'healthRecordIds' : IDL.Vec(IDL.Text),
+            'gender' : IDL.Text,
           }),
         ],
         [],
@@ -63,8 +66,11 @@ export const idlFactory = ({ IDL }) => {
           IDL.Opt(
             IDL.Record({
               'id' : IDL.Principal,
+              'age' : IDL.Nat8,
+              'bloodType' : IDL.Text,
               'name' : IDL.Text,
               'healthRecordIds' : IDL.Vec(IDL.Text),
+              'gender' : IDL.Text,
             })
           ),
         ],

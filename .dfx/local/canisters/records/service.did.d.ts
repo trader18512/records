@@ -21,8 +21,15 @@ export interface _SERVICE {
       }
   >,
   'createPatient' : ActorMethod<
-    [string],
-    { 'id' : Principal, 'name' : string, 'healthRecordIds' : Array<string> }
+    [string, number, string, string],
+    {
+      'id' : Principal,
+      'age' : number,
+      'bloodType' : string,
+      'name' : string,
+      'healthRecordIds' : Array<string>,
+      'gender' : string,
+    }
   >,
   'createStaff' : ActorMethod<
     [string, string],
@@ -43,7 +50,14 @@ export interface _SERVICE {
   'readPatientById' : ActorMethod<
     [string],
     [] | [
-      { 'id' : Principal, 'name' : string, 'healthRecordIds' : Array<string> }
+      {
+        'id' : Principal,
+        'age' : number,
+        'bloodType' : string,
+        'name' : string,
+        'healthRecordIds' : Array<string>,
+        'gender' : string,
+      }
     ]
   >,
   'readStaffById' : ActorMethod<
