@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "azle": "^0.20.1"
+    "azle": "^0.20.1",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.5"
   }
 }

@@ -1,8 +1,9 @@
 service: () -> {
-    createHealthRecord: (text, text, text, text) -> (variant {Ok:record {id:principal; doctorId:text; prescription:text; patientId:text; diagnosis:text}; Err:variant {HealthRecordDoesNotExist:text; StaffDoesNotExist:text; PatientDoesNotExist:text}});
-    createPatient: (text, nat8, text, text) -> (record {id:principal; age:nat8; bloodType:text; name:text; healthRecordIds:vec text; gender:text});
-    createStaff: (text, text) -> (record {id:principal; name:text; role:text});
-    readHealthRecordById: (text) -> (opt record {id:principal; doctorId:text; prescription:text; patientId:text; diagnosis:text}) query;
-    readPatientById: (text) -> (opt record {id:principal; age:nat8; bloodType:text; name:text; healthRecordIds:vec text; gender:text}) query;
-    readStaffById: (text) -> (opt record {id:principal; name:text; role:text}) query;
+    createHealthRecord: (text, text, text, text, text) -> (variant {Ok:record {id:principal; doctorsNotes:text; doctorId:text; prescription:text; patientId:text; diagnosis:text}; Err:variant {IncorrectPassword:text; HealthRecordDoesNotExist:text; StaffDoesNotExist:text; PatientDoesNotExist:text; Unauthorized:text}});
+    createPatient: (text, nat8, text, text, text) -> (variant {Ok:record {id:principal; age:nat8; bloodType:text; name:text; healthRecordIds:vec text; gender:text; allergies:text}; Err:variant {IncorrectPassword:text; HealthRecordDoesNotExist:text; StaffDoesNotExist:text; PatientDoesNotExist:text; Unauthorized:text}});
+    createStaff: (text, text, text, text) -> (record {id:principal; staffID:text; password:text; name:text; role:text});
+    login: (text, text) -> (variant {Ok:text; Err:variant {IncorrectPassword:text; HealthRecordDoesNotExist:text; StaffDoesNotExist:text; PatientDoesNotExist:text; Unauthorized:text}});
+    readHealthRecordById: (text) -> (opt record {id:principal; doctorsNotes:text; doctorId:text; prescription:text; patientId:text; diagnosis:text}) query;
+    readPatientById: (text) -> (variant {Ok:opt record {id:principal; age:nat8; bloodType:text; name:text; healthRecordIds:vec text; gender:text; allergies:text}; Err:variant {IncorrectPassword:text; HealthRecordDoesNotExist:text; StaffDoesNotExist:text; PatientDoesNotExist:text; Unauthorized:text}}) query;
+    readStaffById: (text) -> (variant {Ok:opt record {id:principal; staffID:text; password:text; name:text; role:text}; Err:variant {IncorrectPassword:text; HealthRecordDoesNotExist:text; StaffDoesNotExist:text; PatientDoesNotExist:text; Unauthorized:text}}) query;
 }

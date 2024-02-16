@@ -33,6 +33,8 @@ type Patient = typeof Patient.tsType;
 const Staff = Record({
     id: Principal,
     name: text,
+    staffID: text,
+    password: text,
     role: text
 });
 type Staff = typeof Staff.tsType;
@@ -42,6 +44,7 @@ const HealthRecord = Record({
     patientId: text,
     doctorId: text,
     diagnosis: text,
+    doctorsNotes: text,
     prescription: text
 });
 type HealthRecord = typeof HealthRecord.tsType;
@@ -49,17 +52,47 @@ type HealthRecord = typeof HealthRecord.tsType;
 const HospitalError = Variant({
     PatientDoesNotExist: text,
     StaffDoesNotExist: text,
-    HealthRecordDoesNotExist: text
+    HealthRecordDoesNotExist: text,
+    IncorrectPassword: text,
+    Unauthorized: text
 });
 type HospitalError = typeof HospitalError.tsType;
 
 let patients = StableBTreeMap<text, Patient>(0);
-let staffs = StableBTreeMap<text, Staff>(0);
-let healthRecords = StableBTreeMap<text, HealthRecord>(0);
+let staffs = StableBTreeMap<text, Staff>(1);
+let healthRecords = StableBTreeMap<text, HealthRecord>(2);
+
+type OptStaff = null | Staff;
+let loggedInStaff: OptStaff = null;
 
 export default Canister({
+    // Login operation
+    login: update([text, text], Result(text, HospitalError), (staffID, password) => {
+        const staffOpt = staffs.get(staffID);
+
+        if ('None' in staffOpt) {
+            return Err({
+                StaffDoesNotExist: staffID
+            });
+        }
+
+        const staff = staffOpt.Some;
+        if (staff.password !== password) {
+            return Err({
+                IncorrectPassword: "The password or staff ID you entered is incorrect."
+            });
+        }
+
+        loggedInStaff = staff;
+        return Ok(staff.role);
+    }),
     // Patient related operations
-    createPatient: update([text,nat8,text, text, text], Patient, (name, age, gender, allergies, bloodType) => {
+    createPatient: update([text,nat8,text, text, text], Result(Patient, HospitalError), (name, age, gender, allergies, bloodType) => {
+        if (loggedInStaff === null || loggedInStaff.role !== 'healthRecordOfficer') {
+            return Err({
+                Unauthorized: "You must be a health Record Officer to create a health record."
+            });
+        }
         const id = generateId();
         const patient: Patient = {
             id,
@@ -73,17 +106,24 @@ export default Canister({
     
         patients.insert(patient.id.toText(), patient);  // Convert Principal to string for StableBTreeMap
     
-        return patient;
+        return Ok(patient);
     }),
     
-    readPatientById: query([text], Opt(Patient), (id) => {
-        return patients.get(id);
+    readPatientById: query([text], Result(Opt(Patient), HospitalError), (id) => {
+        if (loggedInStaff === null || (loggedInStaff.role !== 'doctor' && loggedInStaff.role !== 'healthRecordOfficer')) {
+            return Err({
+                Unauthorized: "You must be a doctor or a health record officer to read staff records."
+            });
+        }
+        return Ok(patients.get(id));
     }),
     // Staff related operations
-    createStaff: update([text, text], Staff, (name, role) => {
+    createStaff: update([text, text, text, text], Staff, (name, staffID, password, role) => {
         const id = generateId();
         const staff: Staff = {
             id,
+            staffID,
+            password,
             name,
             role
         };
@@ -92,11 +132,22 @@ export default Canister({
 
         return staff;
     }),
-    readStaffById: query([text], Opt(Staff), (id) => {
-        return staffs.get(id);
+    readStaffById: query([text], Result(Opt(Staff), HospitalError), (id) => {
+        if (loggedInStaff === null || loggedInStaff.role !== 'admin') {
+            return Err({
+                Unauthorized: "You must be an administrator to read staff records."
+            });
+        }
+    
+        return Ok(staffs.get(id));
     }),
     // HealthRecord related operations
-    createHealthRecord: update([text, text, text, text], Result(HealthRecord, HospitalError), (patientId, doctorId, diagnosis, prescription) => {
+    createHealthRecord: update([text, text, text, text, text], Result(HealthRecord, HospitalError), (patientId, doctorId, diagnosis, doctorsNotes, prescription) => {
+        if (loggedInStaff === null || loggedInStaff.role !== 'doctor') {
+            return Err({
+                Unauthorized: "You must be a doctor to create a health record."
+            });
+        }
         const patientOpt = patients.get(patientId);
         const doctorOpt = staffs.get(doctorId);
 
@@ -118,6 +169,7 @@ export default Canister({
             patientId,
             doctorId,
             diagnosis,
+            doctorsNotes,
             prescription
         };
 
